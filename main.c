@@ -7,16 +7,18 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-//neviem zatial co tu ideme robit
+
 
 
 char login[100];
 int sockfd = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+
 int posliSpravu() {
     int n;
     char contact[100];
+
     char buffer[256];
     printf("Please enter contact: ");
     bzero(contact,100);
@@ -27,33 +29,6 @@ int posliSpravu() {
         perror("Error writing to socket");
         return 5;
     }
-
-
-    printf("Please enter a message: ");
-
-
-    bzero(buffer,256);
-    fgets(buffer, 255, stdin);
-
-    n = write(sockfd, buffer, strlen(buffer));
-    if (n < 0)
-    {
-        perror("Error writing to socket");
-        return 5;
-    }
-
-    bzero(buffer,256);
-    n = read(sockfd, buffer, 255);
-    if (n < 0)
-    {
-        perror("Error reading from socket");
-        return 6;
-    }
-
-    printf("%s\n",buffer);
-
-
-    return 0;
 
 
 }
@@ -121,6 +96,8 @@ int main(int argc, char *argv[])
     if(zadane == '1'){
         pthread_join(klient,NULL);
     }
+
+
 
     /*
     printf("Please enter a message: ");
