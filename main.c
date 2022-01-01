@@ -12,12 +12,33 @@ char login[100];
 int sockfd = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+void * dostatnSpravu(){
+    int skonci = 0;
+    printf("Dostávam správy \n");
+    while (1) {
+        int n;
+
+        char buffer[256];
+        pthread_mutex_lock(&mutex);
+        n = recv(sockfd, buffer, 255,0);
+        if (n < 0) {
+            perror("Error reading from socket");
+            return NULL;
+        }
+        printf("Here is the message: %s\n", buffer);
+        pthread_mutex_unlock(&mutex);
+
+
+    }
+}
+
 void *posliSpravu() {
     int skonci = 0;
     while (skonci == 0) {
         int n;
         char contact[100];
         char buffer[256];
+
 
         printf("Please enter contact: ");
         bzero(contact, 100);
@@ -100,10 +121,12 @@ int main(int argc, char *argv[]) {
         perror("Error writing to socket");
         return 5;
     }
-    pthread_t klient;
+    pthread_t klient,klient2;
 
     pthread_create(&klient, NULL, posliSpravu, NULL);
-    pthread_join(klient, NULL);
+
+    pthread_create(&klient2, NULL, dostatnSpravu, NULL);
+    pthread_join(klient2, NULL);
 
 
     /* printf("Pre poslanie spravy zadajte - 1");
