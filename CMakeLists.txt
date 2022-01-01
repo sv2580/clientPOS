@@ -3,6 +3,6 @@ project(untitled1 C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(clientPOS main.c)
+add_executable(untitled1 main.c)
 
-target_link_libraries(clientPOS pthread)
+target_link_libraries(untitled1 pthread)

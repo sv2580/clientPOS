@@ -8,34 +8,35 @@
 #include <unistd.h>
 #include <pthread.h>
 
-
-
 char login[100];
 int sockfd = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-
-int posliSpravu() {
+void * posliSpravu() {
     int n;
-    char contact[100];
+    while(1){
+        char contact[100];
+        char buffer[256];
+        printf("Please enter contact: ");
+        bzero(contact,100);
+        printf("%s", "> ");
+        fflush(stdout);
+        scanf("%s",contact);
+        n = write(sockfd, contact, strlen(contact));
+        if (n < 0)
+        {
+            perror("Error writing to socket");
+            return 5;
+        }        if(strcmp(contact, "exit") != 0 ){
+            break;
+        }
 
-    char buffer[256];
-    printf("Please enter contact: ");
-    bzero(contact,100);
-    fgets(contact, 99, stdin);
-    n = write(sockfd, contact, strlen(contact));
-    if (n < 0)
-    {
-        perror("Error writing to socket");
-        return 5;
     }
-
-
 }
 
 int main(int argc, char *argv[])
 {
-    int sockfd, n;
+    int  n;
     struct sockaddr_in serv_addr;
     struct hostent* server;
 
@@ -87,15 +88,16 @@ int main(int argc, char *argv[])
         perror("Error writing to socket");
         return 5;
     }
-
-    printf("Pre poslanie spravy zadajte - 1");
-    char zadane = getchar();
     pthread_t klient;
     pthread_create(&klient, NULL, posliSpravu, NULL);
+    pthread_join(klient,NULL);
+
+   /* printf("Pre poslanie spravy zadajte - 1");
+    char zadane = getchar();
 
     if(zadane == '1'){
         pthread_join(klient,NULL);
-    }
+    }*/
 
 
 
