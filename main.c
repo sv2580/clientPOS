@@ -19,14 +19,12 @@ void * dostatnSpravu(){
         int n;
 
         char buffer[256];
-        pthread_mutex_lock(&mutex);
         n = recv(sockfd, buffer, 255,0);
         if (n < 0) {
             perror("Error reading from socket");
             return NULL;
         }
         printf("Here is the message: %s\n", buffer);
-        pthread_mutex_unlock(&mutex);
 
 
     }
@@ -34,6 +32,17 @@ void * dostatnSpravu(){
 
 void *posliSpravu() {
     int skonci = 0;
+    int n;
+    char login[100];
+    printf("Please enter login: ");
+    bzero(login, 100);
+    fgets(login, 99, stdin);
+    n = write(sockfd, login, strlen(login));
+    if (n < 0) {
+        perror("Error writing to socket");
+        return NULL;
+    }
+
     while (skonci == 0) {
         int n;
         char contact[100];
@@ -113,14 +122,7 @@ int main(int argc, char *argv[]) {
 
     //
 
-    printf("Please enter login: ");
-    bzero(login, 100);
-    fgets(login, 99, stdin);
-    n = write(sockfd, login, strlen(login));
-    if (n < 0) {
-        perror("Error writing to socket");
-        return 5;
-    }
+
     pthread_t klient,klient2;
 
     pthread_create(&klient, NULL, posliSpravu, NULL);
