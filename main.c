@@ -126,8 +126,8 @@ int main(int argc, char *argv[]) {
     pthread_t klient,klient2;
 
     pthread_create(&klient, NULL, posliSpravu, NULL);
-
     pthread_create(&klient2, NULL, dostatnSpravu, NULL);
+    pthread_join(klient, NULL);
     pthread_join(klient2, NULL);
 
 
