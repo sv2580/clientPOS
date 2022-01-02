@@ -16,6 +16,7 @@ void * dostatnSpravu(){
     int skonci = 0;
     printf("Dostávam správy \n");
     while (1) {
+
         int n;
 
         char buffer[256];
@@ -54,6 +55,8 @@ void *posliSpravu() {
         printf("%s", "> ");
         fflush(stdout);
         scanf("%s", contact);
+
+
         n = write(sockfd, contact, strlen(contact));
         if (n < 0) {
             perror("Error writing to socket");
@@ -70,6 +73,7 @@ void *posliSpravu() {
         scanf("%s", buffer);
 
         n = write(sockfd, buffer, strlen(buffer));
+
         if (n < 0) {
             perror("Error writing to socket");
             return NULL;
@@ -127,9 +131,9 @@ int main(int argc, char *argv[]) {
 
     pthread_create(&klient, NULL, posliSpravu, NULL);
     pthread_create(&klient2, NULL, dostatnSpravu, NULL);
-    pthread_join(klient, NULL);
-    pthread_join(klient2, NULL);
-
+    while(1){
+        usleep(1);
+    }
 
     /* printf("Pre poslanie spravy zadajte - 1");
      char zadane = getchar();
