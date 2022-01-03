@@ -159,11 +159,13 @@ void prihlasenie(){
         if(spravneHeslo == 0){
             printf("Udaje sa nenasli\n");
         } else {
+            jePrihlaseny = 1;
             break;
         }
 
 
     }
+    hlavneMenu();
 }
 
 void hlavneMenu() {
@@ -190,10 +192,15 @@ void hlavneMenu() {
         }
 
     } else {
-        printf("[1.] Písanie správ \n");
+        printf("[3.] Písanie správ \n");
         scanf("%d", &poziadavka);
         getchar();
-        if (poziadavka == 1) {
+        if (poziadavka == 3) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
             pthread_t klient;
             pthread_create(&klient, NULL, posliSpravu, NULL);
         }
