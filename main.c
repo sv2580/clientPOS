@@ -77,6 +77,7 @@ void *posliSpravu() {
 
     }
 }
+
 void hlavneMenu();
 
 void registracia() {
@@ -103,7 +104,7 @@ void registracia() {
             return;
         }
 
-        if(nasloSa == 1){
+        if (nasloSa == 1) {
             printf("Please enter new login, the login is already used.\n");
         } else {
             break;
@@ -122,7 +123,7 @@ void registracia() {
 
 }
 
-void prihlasenie(){
+void prihlasenie() {
     int n;
     char login[100];
     char password[100];
@@ -156,14 +157,60 @@ void prihlasenie(){
             return;
         }
 
-        if(spravneHeslo == 0){
+        if (spravneHeslo == 0) {
             printf("Udaje sa nenasli\n");
         } else {
             jePrihlaseny = 1;
+
             break;
         }
 
 
+    }
+    pthread_t klient2;
+    pthread_create(&klient2, NULL, dostatnSpravu, NULL);
+
+    hlavneMenu();
+}
+
+void odhlasenie() {
+    if (jePrihlaseny == 1) {
+        jePrihlaseny = 0;
+    }
+    printf("Boli ste odhlásený.\n");
+    hlavneMenu();
+
+}
+
+void zrusitUcet() {
+    char password[100];
+    int n;
+    if (jePrihlaseny == 1) {
+        printf("Pre zrušenie účtu zadajte heslo \n");
+        while (1) {
+            bzero(password, 100);
+            fgets(password, 99, stdin);
+            n = write(sockfd, password, strlen(password));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+
+            int spravneHeslo;
+            n = read(sockfd, &spravneHeslo, sizeof(spravneHeslo));
+            if (n < 0) {
+                perror("Error reading from socket");
+                return;
+            }
+            if(spravneHeslo == 1){
+                printf("Váš účet bol zrušený.\n");
+                jePrihlaseny = 0;
+                break;
+            } else {
+                printf("Nesprávne heslo \n");
+            }
+
+        }
     }
     hlavneMenu();
 }
@@ -193,6 +240,9 @@ void hlavneMenu() {
 
     } else {
         printf("[3.] Písanie správ \n");
+        printf("[4.] Odhlásenie \n");
+        printf("[5.] Zmazať účet \n");
+
         scanf("%d", &poziadavka);
         getchar();
         if (poziadavka == 3) {
@@ -203,6 +253,20 @@ void hlavneMenu() {
             }
             pthread_t klient;
             pthread_create(&klient, NULL, posliSpravu, NULL);
+        } else if (poziadavka == 4) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+            odhlasenie();
+        } else if (poziadavka == 5) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+            zrusitUcet();
         }
     }
 }
@@ -251,7 +315,6 @@ int main(int argc, char *argv[]) {
 
     pthread_t klient2;
     hlavneMenu();
-    pthread_create(&klient2, NULL, dostatnSpravu, NULL);
     while (1) {
         usleep(1);
     }
