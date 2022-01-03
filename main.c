@@ -122,6 +122,50 @@ void registracia() {
 
 }
 
+void prihlasenie(){
+    int n;
+    char login[100];
+    char password[100];
+    char buffer[256];
+
+    while (1) {
+
+        printf("Please enter your login: ");
+        bzero(login, 100);
+        fgets(login, 99, stdin);
+        n = write(sockfd, login, strlen(login));
+        if (n < 0) {
+            perror("Error writing to socket");
+            return;
+        }
+
+        printf("Please enter password.\n");
+        bzero(password, 100);
+        fgets(password, 99, stdin);
+        n = write(sockfd, password, strlen(password));
+        if (n < 0) {
+            perror("Error writing to socket");
+            return;
+        }
+
+        bzero(buffer, 256);
+        int spravneHeslo;
+        n = read(sockfd, &spravneHeslo, sizeof(spravneHeslo));
+        if (n < 0) {
+            perror("Error reading from socket");
+            return;
+        }
+
+        if(spravneHeslo == 0){
+            printf("Udaje sa nenasli\n");
+        } else {
+            break;
+        }
+
+
+    }
+}
+
 void hlavneMenu() {
     int poziadavka, n;
     if (jePrihlaseny == 0) {
@@ -142,6 +186,7 @@ void hlavneMenu() {
                 perror("Error writing to socket");
                 return;
             }
+            prihlasenie();
         }
 
     } else {
