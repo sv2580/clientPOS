@@ -8,14 +8,12 @@
 #include <unistd.h>
 #include <pthread.h>
 
-char login[100];
 int sockfd = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static int jePrihlaseny;
 
 
-
-void * dostatnSpravu(){
+void *dostatnSpravu() {
     int skonci = 0;
     printf("Dostávam správy \n");
     while (1) {
@@ -23,7 +21,7 @@ void * dostatnSpravu(){
         int n;
 
         char buffer[256];
-        n = recv(sockfd, buffer, 255,0);
+        n = recv(sockfd, buffer, 255, 0);
         if (n < 0) {
             perror("Error reading from socket");
             return NULL;
@@ -79,35 +77,67 @@ void *posliSpravu() {
 
     }
 }
+void hlavneMenu();
 
-void registracia(){
+void registracia() {
     int n;
     char login[100];
-    printf("Please enter your login: ");
-    bzero(login, 100);
-    fgets(login, 99, stdin);
-    n = write(sockfd, login, strlen(login));
+    char password[100];
+    char buffer[256];
+
+    while (1) {
+        printf("Please enter your login: ");
+        bzero(login, 100);
+        fgets(login, 99, stdin);
+        n = write(sockfd, login, strlen(login));
+        if (n < 0) {
+            perror("Error writing to socket");
+            return;
+        }
+
+        bzero(buffer, 256);
+        int nasloSa;
+        n = read(sockfd, &nasloSa, sizeof(nasloSa));
+        if (n < 0) {
+            perror("Error reading from socket");
+            return;
+        }
+
+        if(nasloSa == 1){
+            printf("Please enter new login, the login is already used.\n");
+        } else {
+            break;
+        }
+    }
+    printf("Please enter password.\n");
+    bzero(password, 100);
+    fgets(password, 99, stdin);
+    n = write(sockfd, password, strlen(password));
     if (n < 0) {
         perror("Error writing to socket");
         return;
     }
+    printf("Teraz sa môžete prihlásiť! \n");
+    hlavneMenu();
+
 }
-void hlavneMenu(){
-    int poziadavka,n;
-    if(jePrihlaseny == 0){
+
+void hlavneMenu() {
+    int poziadavka, n;
+    if (jePrihlaseny == 0) {
         printf("[1.] Registrácia \n");
         printf("[2.] Prihlásenie \n");
         scanf("%d", &poziadavka);
         getchar();
-        if(poziadavka == 1){
-            n = write(sockfd, &poziadavka, sizeof (poziadavka));
+        if (poziadavka == 1) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
             if (n < 0) {
                 perror("Error writing to socket");
                 return;
             }
             registracia();
         } else {
-            n = write(sockfd, &poziadavka, sizeof (poziadavka));
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
             if (n < 0) {
                 perror("Error writing to socket");
                 return;
@@ -118,7 +148,7 @@ void hlavneMenu(){
         printf("[1.] Písanie správ \n");
         scanf("%d", &poziadavka);
         getchar();
-        if(poziadavka == 1){
+        if (poziadavka == 1) {
             pthread_t klient;
             pthread_create(&klient, NULL, posliSpravu, NULL);
         }
@@ -170,7 +200,7 @@ int main(int argc, char *argv[]) {
     pthread_t klient2;
     hlavneMenu();
     pthread_create(&klient2, NULL, dostatnSpravu, NULL);
-    while(1){
+    while (1) {
         usleep(1);
     }
 }
