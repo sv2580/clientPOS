@@ -11,6 +11,9 @@
 char login[100];
 int sockfd = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+static int jePrihlaseny;
+
+
 
 void * dostatnSpravu(){
     int skonci = 0;
@@ -33,16 +36,7 @@ void * dostatnSpravu(){
 
 void *posliSpravu() {
     int skonci = 0;
-    int n;
-    char login[100];
-    printf("Please enter login: ");
-    bzero(login, 100);
-    fgets(login, 99, stdin);
-    n = write(sockfd, login, strlen(login));
-    if (n < 0) {
-        perror("Error writing to socket");
-        return NULL;
-    }
+
 
     while (skonci == 0) {
         int n;
@@ -86,6 +80,52 @@ void *posliSpravu() {
     }
 }
 
+void registracia(){
+    int n;
+    char login[100];
+    printf("Please enter your login: ");
+    bzero(login, 100);
+    fgets(login, 99, stdin);
+    n = write(sockfd, login, strlen(login));
+    if (n < 0) {
+        perror("Error writing to socket");
+        return;
+    }
+}
+void hlavneMenu(){
+    int poziadavka,n;
+    if(jePrihlaseny == 0){
+        printf("[1.] Registrácia \n");
+        printf("[2.] Prihlásenie \n");
+        scanf("%d", &poziadavka);
+        getchar();
+        if(poziadavka == 1){
+            n = write(sockfd, &poziadavka, sizeof (poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+            registracia();
+        } else {
+            n = write(sockfd, &poziadavka, sizeof (poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+        }
+
+    } else {
+        printf("[1.] Písanie správ \n");
+        scanf("%d", &poziadavka);
+        getchar();
+        if(poziadavka == 1){
+            pthread_t klient;
+            pthread_create(&klient, NULL, posliSpravu, NULL);
+        }
+    }
+}
+
+
 int main(int argc, char *argv[]) {
     int n;
     struct sockaddr_in serv_addr;
@@ -125,50 +165,12 @@ int main(int argc, char *argv[]) {
     }
 
     //
+    jePrihlaseny = 0;
 
-
-    pthread_t klient,klient2;
-
-    pthread_create(&klient, NULL, posliSpravu, NULL);
+    pthread_t klient2;
+    hlavneMenu();
     pthread_create(&klient2, NULL, dostatnSpravu, NULL);
     while(1){
         usleep(1);
     }
-
-    /* printf("Pre poslanie spravy zadajte - 1");
-     char zadane = getchar();
-
-     if(zadane == '1'){
-         pthread_join(klient,NULL);
-     }*/
-
-
-
-    /*
-    printf("Please enter a message: ");
-
-
-    bzero(buffer,256);
-    fgets(buffer, 255, stdin);
-
-    n = write(sockfd, buffer, strlen(buffer));
-    if (n < 0)
-    {
-        perror("Error writing to socket");
-        return 5;
-    }
-
-    bzero(buffer,256);
-    n = read(sockfd, buffer, 255);
-    if (n < 0)
-    {
-        perror("Error reading from socket");
-        return 6;
-    }
-
-    printf("%s\n",buffer);
-    close(sockfd);
-
-    return 0;*/
-
 }
