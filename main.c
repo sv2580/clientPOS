@@ -201,7 +201,7 @@ void prihlasenie() {
             break;
         }
     }
-    nacitajPolePriatelov();
+    //nacitajPolePriatelov();
     pthread_t klient2;
     pthread_create(&klient2, NULL, dostatnSpravu, NULL);
 
