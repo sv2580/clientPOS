@@ -84,6 +84,39 @@ void *posliSpravu() {
     }
 }
 
+void *posliSubor(){
+    int n;
+    char contact[100];
+    char buffer[256];
+
+
+    printf("Please enter contact: ");
+    bzero(contact, 100);
+    printf("%s", "> ");
+    fflush(stdout);
+    scanf("%s", contact);
+
+
+    n = write(sockfd, contact, strlen(contact));
+    if (n < 0) {
+        perror("Error writing to socket");
+        return NULL;
+    }
+
+
+    printf("Please enter a name of file to send to %s: ", contact);
+    printf("%s", "> ");
+    fflush(stdout);
+    scanf("%s", buffer);
+
+    n = write(sockfd, buffer, strlen(buffer));
+
+    if (n < 0) {
+        perror("Error writing to socket");
+        return NULL;
+    }
+}
+
 
 void registracia() {
     int n;
@@ -159,6 +192,51 @@ void nacitajPolePriatelov() {
     }
     fclose(subor);
 }
+
+
+
+void skupinovaKonverzacia(){
+    int skonci = 0;
+
+    while (skonci == 0) {
+        int n;
+        char contact[100];
+        char buffer[256];
+
+
+        printf("Please enter contact: ");
+        bzero(contact, 100);
+        printf("%s", "> ");
+        fflush(stdout);
+        scanf("%s", contact);
+
+
+        n = write(sockfd, contact, strlen(contact));
+        if (n < 0) {
+            perror("Error writing to socket");
+            return;
+        }
+        if (strcmp(contact, "exit") == 0) {
+            skonci = 1;
+            break;
+        }
+        int nasloSa;
+        n = read(sockfd, &nasloSa, sizeof(nasloSa));
+        if (n < 0) {
+            perror("Error reading from socket");
+            return;
+        }
+        if(nasloSa == 1){
+            printf("Pouzivatel sa nasiel");
+        }else{
+            printf("Pouzivatel sa nenasiel");
+        }
+    }
+
+}
+
+
+
 
 void prihlasenie() {
     int n;
