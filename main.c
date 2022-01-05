@@ -38,7 +38,6 @@ void *dostatnSpravu() {
     }
 }
 
-
 void *posliSpravu() {
     int skonci = 0;
 
@@ -367,21 +366,110 @@ void pozrietZiadosti() {
         rename("docasny.txt", "requsts.txt");    // rename the temporary file to original name
     }
 }
-void odobratPriatela(){
-    if(pocetPriatelov == 0) {
+
+void odobratPriatela() {
+    int n;
+
+    if (pocetPriatelov == 0) {
         printf("Nemáte žiadných priateľov. \n");
         return;
     }
     printf("Váš zoznam priateľov: \n");
     for (int i = 0; i < pocetPriatelov; ++i) {
-        printf("%d. %s",i+1,priatelia[i]);
+        printf("%d. %s", i + 1, priatelia[i]);
     }
-    char priatel[100];
-    printf("Zadajte login priatela, ktorého chcete odobrať: \n");
-    scanf("%s", priatel);
+    printf("Zadajte číslo priatela, ktorého chcete odobrať: \n");
+    int priatel;
+    scanf("%d", &priatel);
+    getchar();
+    char contact[100];
+    strcpy(contact,priatelia[priatel-1]);
+    n = write(sockfd, priatelia[priatel - 1], strlen(priatelia[priatel - 1]));
+    if (n < 0) {
+        perror("Error writing to socket");
+        return;
+    }
+    printf("Požiadavka bola spracovaná.");
 
+    int nasielSa;
+    n = read(sockfd, &nasielSa, sizeof(nasielSa));
+    if (n < 0) {
+        perror("Error reading from socket");
+        return;
+    }
+    if (nasielSa == 1) {
+        FILE *subor;
+        subor = fopen("friends.txt", "r");
+        if (subor == NULL) {
+            fputs("Error at opening File!", stderr);
+            exit(1);
+        }
+        printf("Súbor otvorený \n");
 
+        int nasloSa = 0;
+        int indexRiadku1;
+        int indexRiadku2;
+
+        char line[256];
+        char riadok1[256];
+        char riadok2[256];
+        int pocetRiadkov = 0;
+        while (fscanf(subor, "%s", line) != EOF) {
+            if (pocetRiadkov % 2 == 0) {
+                strcpy(riadok1, line);
+            } else {
+                strcpy(riadok2, line);
+                if (strcmp(riadok1, login) == 0 && strcmp(riadok2,contact) == 0) {
+                    indexRiadku1 = pocetRiadkov - 1;
+                    indexRiadku2 = pocetRiadkov;
+                } else if (strcmp(riadok2, login) == 0 && strcmp(riadok1,contact) == 0) {
+                    indexRiadku1 = pocetRiadkov - 1;
+                    indexRiadku2 = pocetRiadkov;
+                }
+            }
+            pocetRiadkov++;
+        }
+        fclose(subor);
+
+        FILE *povodnySubor, *novySubor;
+
+        int riadok = 0;
+        char string[256];
+        povodnySubor = fopen("requests.txt", "r");
+        if (!povodnySubor) {
+            printf("Error at opening File!\n");
+            return;
+        }
+        novySubor = fopen("docasny.txt", "w");
+        if (!novySubor) {
+            printf("Error at opening File!\n");
+            fclose(povodnySubor);
+            return;
+        }
+
+        while (!feof(povodnySubor)) {
+            strcpy(string, "\0");
+            fgets(string, 256, povodnySubor);
+            if (!feof(povodnySubor)) {
+                riadok++;
+                if (riadok != indexRiadku1 && riadok != indexRiadku2) {
+                    fprintf(novySubor, "%s", string);
+                }
+            }
+        }
+        fclose(povodnySubor);
+        fclose(novySubor);
+        remove("requsts.txt");        // remove the original file
+        rename("docasny.txt", "requsts.txt");    // rename the temporary file to original name
+
+        printf("Používateľ bol odobraný z priateľov.\n");
+    } else {
+        printf("Používateľ neexistuje.\n");
+    }
+
+    hlavneMenu();
 }
+
 void hlavneMenu() {
     int poziadavka, n;
     if (jePrihlaseny == 0) {
@@ -463,6 +551,8 @@ void hlavneMenu() {
 
 
 int main(int argc, char *argv[]) {
+
+
     int n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
