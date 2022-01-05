@@ -203,11 +203,8 @@ void skupinovaKonverzacia(){
         char contact[100];
         char buffer[256];
 
-
-        printf("Please enter contact: ");
         bzero(contact, 100);
-        printf("%s", "> ");
-        fflush(stdout);
+        printf("Please enter contact: ");
         scanf("%s", contact);
 
 
@@ -221,14 +218,14 @@ void skupinovaKonverzacia(){
             break;
         }
         printf("pred naslosa - client");
-        int nasloSa = 0;
-        n = read(sockfd, &nasloSa, sizeof(nasloSa));
+        int nasielSA = 0;
+        n = read(sockfd, &nasielSA, sizeof(nasielSA));
         if (n < 0) {
             perror("Error reading from socket");
             return;
         }
         printf("pred if naslo sa - client");
-        if(nasloSa == 1){
+        if(nasielSA == 1){
             printf("Pouzivatel sa nasiel");
         }else{
             printf("Pouzivatel sa nenasiel");
@@ -295,6 +292,61 @@ void odhlasenie() {
     printf("Boli ste odhlásený.\n");
     hlavneMenu();
 
+}
+
+void * posielanieSuborov(){
+    char nazovSuboru[100];
+    char contact[100];
+    printf("Prosím zadajte meno súboru: ");
+    bzero(nazovSuboru, 100);
+    fgets(nazovSuboru, 99, stdin);
+    printf("Prosím zadajte kontakt: ");
+    bzero(contact, 100);
+    fgets(contact, 99, stdin);
+    int n = write(sockfd, contact, strlen(contact));
+    if (n < 0) {
+        perror("Error writing to socket");
+        return NULL;
+    }
+    FILE* subor;
+    subor = fopen(nazovSuboru,"r");
+    char data[2084] = {0};
+
+    while(fgets(data, 2084, subor)!=NULL)
+    {
+        if(send(sockfd, data, sizeof(data), 0) < 0)
+        {
+            perror("Chyba v posielaní dát");
+            exit(1);
+        }
+        bzero(data, 2084);
+    }
+
+    fclose(subor);
+
+}
+
+void * prijatieSuboru(){
+    char nazovSuboru[100];
+    char contact[100];
+    printf("Prosím zadajte názov, pod ktorým sa súbor uloží: ");
+    bzero(nazovSuboru, 100);
+    fgets(nazovSuboru, 99, stdin);
+
+    FILE* subor;
+    subor = fopen(nazovSuboru,"r");
+    char data[2084] = {0};
+    while(1)
+    {
+        int n = recv(sockfd, data, 2084, 0);
+        if(n<=0)
+        {
+            break;
+        }
+        bzero(data, 2084);
+    }
+
+    fclose(subor);
 }
 
 void zrusitUcet() {
@@ -581,6 +633,8 @@ void hlavneMenu() {
         printf("[7.] Pozrieť si žiadosti o priateľstvo\n");
         printf("[8.] Odobranie priatela \n");
         printf("[9.] Vytvor skupinu \n");
+        printf("[10.] Posli subor \n");
+        printf("[11.] Dostan subor \n");
         scanf("%d", &poziadavka);
         getchar();
         if (poziadavka == 3) {
@@ -633,6 +687,23 @@ void hlavneMenu() {
                 return;
             }
             skupinovaKonverzacia();
+        } else if (poziadavka == 10) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+            pthread_t klient3;
+            pthread_create(&klient3, NULL, posielanieSuborov, NULL);
+        } else if (poziadavka == 11) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+            pthread_t klient4;
+            pthread_create(&klient4, NULL, prijatieSuboru, NULL);
+
         }
     }
 }
