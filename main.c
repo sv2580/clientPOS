@@ -220,12 +220,14 @@ void skupinovaKonverzacia(){
             skonci = 1;
             break;
         }
-        int nasloSa;
+        printf("pred naslosa - client");
+        int nasloSa = 0;
         n = read(sockfd, &nasloSa, sizeof(nasloSa));
         if (n < 0) {
             perror("Error reading from socket");
             return;
         }
+        printf("pred if naslo sa - client");
         if(nasloSa == 1){
             printf("Pouzivatel sa nasiel");
         }else{
@@ -280,8 +282,8 @@ void prihlasenie() {
         }
     }
     //nacitajPolePriatelov();
-    pthread_t klient2;
-    pthread_create(&klient2, NULL, dostatnSpravu, NULL);
+    //pthread_t klient2;
+    //pthread_create(&klient2, NULL, dostatnSpravu, NULL);
 
     hlavneMenu();
 }
@@ -578,6 +580,7 @@ void hlavneMenu() {
         printf("[6.] Pridať si úžívateľa do priateľov\n");
         printf("[7.] Pozrieť si žiadosti o priateľstvo\n");
         printf("[8.] Odobranie priatela \n");
+        printf("[9.] Vytvor skupinu \n");
         scanf("%d", &poziadavka);
         getchar();
         if (poziadavka == 3) {
@@ -623,6 +626,13 @@ void hlavneMenu() {
                 return;
             }
             odobratPriatela();
+        } else if (poziadavka == 9) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+            skupinovaKonverzacia();
         }
     }
 }
