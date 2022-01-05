@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
-project(untitled1 C)
+project(client C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(untitled1 main.c)
+add_executable(client main.c)
 
-target_link_libraries(untitled1 pthread)
+target_link_libraries(client pthread)
