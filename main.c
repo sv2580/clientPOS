@@ -123,6 +123,9 @@ void *posliSpravu() {
 }
 
 void *skupKonvSpravy() {
+
+
+
     int skonci = 0;
     printf("Skupinová konverzácia: \n");
 
