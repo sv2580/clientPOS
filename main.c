@@ -121,10 +121,64 @@ void *posliSpravu() {
     }
 }
 
+void *posliSifSpravu() {
+    int skonci = 0;
+
+    printf("Posielam šifrovanú správu \n");
+    int n;
+    char contact[100];
+    char buffer[256];
+
+    printf("Please enter contact: ");
+    bzero(contact, 100);
+    printf("%s", "> ");
+    fflush(stdout);
+    scanf("%s", contact);
+
+    n = write(sockfd, contact, strlen(contact));
+    if (n < 0) {
+        perror("Error writing to socket");
+        return NULL;
+    }
+
+    int nasielSa;
+    n = read(sockfd, &nasielSa, sizeof(nasielSa));
+    if (n < 0) {
+        perror("Error writing to socket");
+        return NULL;
+    }
+    if(nasielSa == 0)
+    {
+        printf("Používateľ sa nenašiel.");
+        hlavneMenu();
+    }
+
+    printf("Please enter a message to send to %s: ", contact);
+    printf("%s", "> ");
+    fflush(stdout);
+    scanf("%s", buffer);
+    n = write(sockfd, buffer, strlen(buffer));
+
+    if (n < 0) {
+        perror("Error writing to socket");
+        return NULL;
+    }
+
+    int posun;
+    printf("Please enter a number: \n ");
+    scanf("%d", &posun);
+    getchar();
+    n = write(sockfd, &posun, sizeof(posun));
+    if (n < 0) {
+        perror("Error writing to socket");
+        return NULL;
+    }
+
+    hlavneMenu();
+
+}
+
 void *skupKonvSpravy() {
-
-
-
     int skonci = 0;
     printf("Skupinová konverzácia: \n");
 
@@ -132,10 +186,10 @@ void *skupKonvSpravy() {
         int n;
         char buffer[500];
         char sprava[256];
-        trim(login,100);
+        trim(login, 100);
         printf("%s: ", login);
         scanf("%s", sprava);
-        sprintf(buffer,"%s: %s",login,sprava);
+        sprintf(buffer, "%s: %s", login, sprava);
 
 
         n = write(sockfd, buffer, strlen(buffer));
@@ -149,6 +203,7 @@ void *skupKonvSpravy() {
         }
 
     }
+    hlavneMenu();
 }
 
 void *posielanieSuborov() {
@@ -216,7 +271,6 @@ void *posielanieSuborov() {
     hlavneMenu();
 
 }
-
 
 void registracia() {
     int n;
@@ -308,7 +362,7 @@ void nacitajPolePriatelov() {
             return;
         }
         printf("%d \n", koniec);
-        if(koniec == 1)
+        if (koniec == 1)
             break;
 
         char contact[100];
@@ -330,7 +384,6 @@ void nacitajPolePriatelov() {
         printf("%s\n", priatelia[i]);
     }
 }
-
 
 void skupinovaKonverzacia() {
     int skonci = 0;
@@ -371,7 +424,6 @@ void skupinovaKonverzacia() {
     hlavneMenu();
 
 }
-
 
 void prihlasenie() {
     int n;
@@ -429,7 +481,6 @@ void odhlasenie() {
     hlavneMenu();
 
 }
-
 
 void zrusitUcet() {
     char password[100];
@@ -567,7 +618,24 @@ void odobratPriatela() {
 }
 
 void hlavneMenu() {
-    int poziadavka, n;
+    int poziadavka, n, p;
+    n = read(sockfd, &p, sizeof(p));
+    if (n < 0) {
+        perror("Error reading from socket");
+        return;
+    }
+    char slovo[256];
+
+    if((p + 2)%4 == 0){
+        n = read(sockfd, slovo, 255);
+        if (n < 0) {
+            perror("Error reading from socket");
+        }
+
+        printf("Prišlo vám zašifrované slovo: %s \n",slovo);
+    }
+
+
     if (jePrihlaseny == 0) {
         printf("[1.] Registrácia \n");
         printf("[2.] Prihlásenie \n");
@@ -600,6 +668,8 @@ void hlavneMenu() {
         printf("[10.] Posielanie dát \n");
         printf("[11.] Prijatie dát \n");
         printf("[12.] Skupinová konverzácia \n");
+        printf("[13.] Šifrovaná konverzácia \n");
+
         scanf("%d", &poziadavka);
         getchar();
         if (poziadavka == 3) {
@@ -679,11 +749,17 @@ void hlavneMenu() {
             pthread_t klient6;
             pthread_create(&klient6, NULL, dostatnSpravu, NULL);
 
+        } else if (poziadavka == 13) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+            posliSifSpravu();
         }
     }
 
 }
-
 
 int main(int argc, char *argv[]) {
 
