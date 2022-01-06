@@ -61,7 +61,6 @@ void *dostatnSpravu() {
     int skonci = 0;
     printf("Dostávam správy \n");
     while (1) {
-
         int n;
 
         char buffer[500];
@@ -303,6 +302,15 @@ void nacitajPolePriatelov() {
     printf("%d \n", koniec);
 
     while (koniec == 0) {
+        n = read(sockfd, &koniec, sizeof(koniec));
+        if (n < 0) {
+            perror("Error reading from socket");
+            return;
+        }
+        printf("%d \n", koniec);
+        if(koniec == 1)
+            break;
+
         char contact[100];
         bzero(contact, 100);
         n = read(sockfd, contact, 99);
@@ -310,20 +318,14 @@ void nacitajPolePriatelov() {
             perror("Error reading from socket");
             return;
         }
-        index++;
         pocetPriatelov++;
         printf("nacitanie: %s \n", contact);
         strcpy(priatelia[index], contact);
+        index++;
 
-        n = read(sockfd, &koniec, sizeof(koniec));
-        if (n < 0) {
-            perror("Error reading from socket");
-            return;
-        }
-        printf("%d \n", koniec);
 
     }
-
+    printf("počet:%d \n", pocetPriatelov);
     for (int i = 0; i < pocetPriatelov; i++) {
         printf("%s\n", priatelia[i]);
     }
@@ -412,7 +414,7 @@ void prihlasenie() {
             break;
         }
     }
-    //nacitajPolePriatelov();
+    nacitajPolePriatelov();
     //pthread_t klient2;
     //pthread_create(&klient2, NULL, dostatnSpravu, NULL);
 
