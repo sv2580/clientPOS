@@ -64,13 +64,13 @@ void *dostatnSpravu() {
 
         int n;
 
-        char buffer[256];
-        n = recv(sockfd, buffer, 255, 0);
+        char buffer[500];
+        n = recv(sockfd, buffer, 499, 0);
         if (n < 0) {
             perror("Error reading from socket");
             return NULL;
         }
-        printf("Here is the message: %s\n", buffer);
+        printf("%s\n", buffer);
 
 
     }
@@ -122,6 +122,33 @@ void *posliSpravu() {
     }
 }
 
+void *skupKonvSpravy() {
+    int skonci = 0;
+    printf("Skupinová konverzácia: \n");
+
+    while (skonci == 0) {
+        int n;
+        char buffer[500];
+        char sprava[256];
+        trim(login,100);
+        printf("%s: ", login);
+        scanf("%s", sprava);
+        sprintf(buffer,"%s: %s",login,sprava);
+
+
+        n = write(sockfd, buffer, strlen(buffer));
+        if (n < 0) {
+            perror("Error writing to socket");
+            return NULL;
+        }
+        if (strcmp(sprava, "exit") == 0) {
+            skonci = 1;
+            break;
+        }
+
+    }
+}
+
 void *posielanieSuborov() {
     char nazovSuboru[100];
     char contact[100];
@@ -145,7 +172,7 @@ void *posielanieSuborov() {
     printf("there are %d letters", counter);
     fclose(fp);
 
-    n=write(sockfd,&counter,sizeof (counter));
+    n = write(sockfd, &counter, sizeof(counter));
     if (n < 0) {
         perror("Error writing to socket");
         return NULL;
@@ -163,13 +190,13 @@ void *posielanieSuborov() {
     printf("Prosím zadajte kontakt: ");
     bzero(contact, 100);
     scanf("%s", contact);
-    n =  send(sockfd, contact, strlen(contact), 0);
+    n = send(sockfd, contact, strlen(contact), 0);
     if (n < 0) {
         perror("Error writing to socket");
         return NULL;
     }
 
-    printf("zadaný kontakt %s \n",contact);
+    printf("zadaný kontakt %s \n", contact);
     int nasielSa;
     n = read(sockfd, &nasielSa, sizeof(nasielSa));
     if (n < 0) {
@@ -177,7 +204,7 @@ void *posielanieSuborov() {
         return NULL;
     }
 
-    if(nasielSa == 1){
+    if (nasielSa == 1) {
         printf("Používateľ je prihlásený a súbor mu bude odoslaný. \n");
     } else {
         printf("Používateľ nie je prihlásený alebo neexistuje. \n");
@@ -242,7 +269,7 @@ void *prijatieSuboru() {
     trim(nazovSuboru, 100);
 
     int counter;
-   int n = read(sockfd, &counter, sizeof(counter));
+    int n = read(sockfd, &counter, sizeof(counter));
     if (n < 0) {
         perror("Error writing to socket");
         return NULL;
@@ -265,7 +292,6 @@ void *prijatieSuboru() {
         perror("Receiving");
     }
 }
-
 
 void nacitajPolePriatelov() {
     int koniec = 0;
@@ -312,7 +338,7 @@ void skupinovaKonverzacia() {
         bzero(contact, 100);
         printf("Please enter contact: ");
         scanf("%s", contact);
-
+        trim(contact, 100);
 
         n = write(sockfd, contact, strlen(contact));
         if (n < 0) {
@@ -337,6 +363,7 @@ void skupinovaKonverzacia() {
             printf("Pouzivatel sa nenasiel");
         }
     }
+    hlavneMenu();
 
 }
 
@@ -567,6 +594,7 @@ void hlavneMenu() {
         printf("[9.] Vytvor skupinu \n");
         printf("[10.] Posielanie dát \n");
         printf("[11.] Prijatie dát \n");
+        printf("[12.] Skupinová konverzácia \n");
         scanf("%d", &poziadavka);
         getchar();
         if (poziadavka == 3) {
@@ -635,8 +663,20 @@ void hlavneMenu() {
             pthread_t klient4;
             pthread_create(&klient4, NULL, prijatieSuboru, NULL);
 
+        } else if (poziadavka == 12) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+            pthread_t klient5;
+            pthread_create(&klient5, NULL, skupKonvSpravy, NULL);
+            pthread_t klient6;
+            pthread_create(&klient6, NULL, dostatnSpravu, NULL);
+
         }
     }
+
 }
 
 
