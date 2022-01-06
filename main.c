@@ -239,6 +239,7 @@ void *prijatieSuboru() {
     printf("Prosím zadajte názov, pod ktorým sa súbor uloží: ");
     bzero(nazovSuboru, 100);
     fgets(nazovSuboru, 99, stdin);
+    trim(nazovSuboru, 100);
 
     int counter;
    int n = read(sockfd, &counter, sizeof(counter));
