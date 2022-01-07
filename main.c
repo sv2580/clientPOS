@@ -394,7 +394,7 @@ void skupinovaKonverzacia() {
         char buffer[256];
 
         bzero(contact, 100);
-        printf("Please enter contact: ");
+        printf("Zadaj kontakt, ktorý chceš pridať do skupiny: ");
         scanf("%s", contact);
         trim(contact, 100);
 
@@ -407,18 +407,16 @@ void skupinovaKonverzacia() {
             skonci = 1;
             break;
         }
-        printf("pred naslosa - client");
         int nasielSA = 0;
         n = read(sockfd, &nasielSA, sizeof(nasielSA));
         if (n < 0) {
             perror("Error reading from socket");
             return;
         }
-        printf("pred if naslo sa - client");
         if (nasielSA == 1) {
-            printf("Pouzivatel sa nasiel");
+            printf("Používateľ sa našiel a bol pridaný do skupiny\n");
         } else {
-            printf("Pouzivatel sa nenasiel");
+            printf("Používateľ sa nenašiel\n");
         }
     }
     hlavneMenu();
@@ -432,7 +430,7 @@ void prihlasenie() {
 
     while (1) {
 
-        printf("Please enter your login: ");
+        printf("Zadajte prihlasovacie meno: ");
         bzero(login, 100);
         fgets(login, 99, stdin);
         n = write(sockfd, login, strlen(login));
@@ -440,8 +438,7 @@ void prihlasenie() {
             perror("Error writing to socket");
             return;
         }
-
-        printf("Please enter password.\n");
+        printf("Zadajte heslo: ");
         bzero(password, 100);
         fgets(password, 99, stdin);
         n = write(sockfd, password, strlen(password));
@@ -449,7 +446,6 @@ void prihlasenie() {
             perror("Error writing to socket");
             return;
         }
-
         bzero(buffer, 256);
         int spravneHeslo;
         n = read(sockfd, &spravneHeslo, sizeof(spravneHeslo));
@@ -459,7 +455,7 @@ void prihlasenie() {
         }
 
         if (spravneHeslo == 0) {
-            printf("Udaje sa nenasli\n");
+            printf("Meno alebo heslo neexistuje\n");
         } else {
             jePrihlaseny = 1;
 
@@ -467,9 +463,6 @@ void prihlasenie() {
         }
     }
     nacitajPolePriatelov();
-    //pthread_t klient2;
-    //pthread_create(&klient2, NULL, dostatnSpravu, NULL);
-
     hlavneMenu();
 }
 
@@ -486,7 +479,7 @@ void zrusitUcet() {
     char password[100];
     int n;
     if (jePrihlaseny == 1) {
-        printf("Pre zrušenie účtu zadajte heslo \n");
+        printf("Pre zrušenie účtu zadajte heslo: ");
         while (1) {
             bzero(password, 100);
             fgets(password, 99, stdin);
@@ -507,7 +500,8 @@ void zrusitUcet() {
                 jePrihlaseny = 0;
                 break;
             } else {
-                printf("Nesprávne heslo \n");
+                printf("Nesprávne heslo. \n");
+                break;
             }
 
         }
@@ -617,7 +611,38 @@ void odobratPriatela() {
     hlavneMenu();
 }
 
+void desifruj() {
+    char contact[100];
+    char line[256];
+    int posun;
+    int n = read(sockfd, contact, 99);
+    if (n < 0) {
+        perror("Error reading from socket");
+    }
+    n = read(sockfd, &posun, sizeof (posun));
+    if (n < 0) {
+        perror("Error reading from socket");
+    }
+    n = read(sockfd, line, 255);
+    if (n < 0) {
+        perror("Error reading from socket");
+    }
+
+    printf("Správa od priateľa %s: %s \n",contact,line);
+    printf("Dešifrovanie správy: \n");
+    char sifra[256];
+    for (int i = 0; i < strlen(line); ++i) {
+        char znak = line[i];
+        char zasifrovanyZnak = 'a' + ((znak - 'a') - posun) % ('z' - 'a');
+        sifra[i] = zasifrovanyZnak;
+        printf("Odšifrovanie znaku %c na znak %c\n", znak, zasifrovanyZnak);
+    }
+    printf("Dešifrovaná správa: %s\n",sifra);
+    hlavneMenu();
+}
+
 void hlavneMenu() {
+    printf("\n");
     int poziadavka, n, p;
     n = read(sockfd, &p, sizeof(p));
     if (n < 0) {
@@ -626,13 +651,10 @@ void hlavneMenu() {
     }
     char slovo[256];
 
-    if((p + 2)%4 == 0){
-        n = read(sockfd, slovo, 255);
-        if (n < 0) {
-            perror("Error reading from socket");
-        }
+    if ((p + 2) % 4 == 0) {
+        printf("Prišlo vám zašifrované slovo, môžete stlačiť číslo 14 pre zobrazenie \n.");
+        printf("\n");
 
-        printf("Prišlo vám zašifrované slovo: %s \n",slovo);
     }
 
 
@@ -668,8 +690,10 @@ void hlavneMenu() {
         printf("[10.] Posielanie dát \n");
         printf("[11.] Prijatie dát \n");
         printf("[12.] Skupinová konverzácia \n");
-        printf("[13.] Šifrovaná konverzácia \n");
-
+        printf("[13.] Odoslanie šifrovanej správy \n");
+        if ((p + 2) % 4 == 0) {
+            printf("[14.] Dešifrovanie správy \n");
+        }
         scanf("%d", &poziadavka);
         getchar();
         if (poziadavka == 3) {
@@ -756,9 +780,18 @@ void hlavneMenu() {
                 return;
             }
             posliSifSpravu();
+        } else if (poziadavka == 14) {
+            n = write(sockfd, &poziadavka, sizeof(poziadavka));
+            if (n < 0) {
+                perror("Error writing to socket");
+                return;
+            }
+            desifruj();
+
+        } else {
+            hlavneMenu();
         }
     }
-
 }
 
 int main(int argc, char *argv[]) {
