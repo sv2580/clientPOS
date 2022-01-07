@@ -83,6 +83,7 @@ void *posliSpravu() {
         int n;
         char contact[100];
         char buffer[256];
+        char sprava[500];
 
 
         printf("Please enter contact: ");
@@ -103,10 +104,12 @@ void *posliSpravu() {
         }
 
         printf("Please enter a message to send to %s: ", contact);
+        bzero(buffer, 255);
         printf("%s", "> ");
         fflush(stdout);
-        scanf("%s", buffer);
+        fgets(buffer, 255, stdin);
 
+        sprintf(sprava, "%s: %s", login, buffer);
         n = write(sockfd, buffer, strlen(buffer));
 
         if (n < 0) {
