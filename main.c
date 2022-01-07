@@ -366,7 +366,10 @@ void nacitajPolePriatelov() {
         }
         printf("%d \n", koniec);
         if (koniec == 1)
-            break;
+        {
+            hlavneMenu();
+            return;
+        }
 
         char contact[100];
         bzero(contact, 100);
@@ -380,12 +383,13 @@ void nacitajPolePriatelov() {
         strcpy(priatelia[index], contact);
         index++;
 
-
     }
     printf("počet:%d \n", pocetPriatelov);
     for (int i = 0; i < pocetPriatelov; i++) {
         printf("%s\n", priatelia[i]);
     }
+    hlavneMenu();
+
 }
 
 void skupinovaKonverzacia() {
