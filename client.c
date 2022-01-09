@@ -1039,6 +1039,7 @@ int mainKlient(int argc, char *argv[]) {
         return 4;
     }
 
+
     //
     jePrihlaseny = 0;
     pocetPriatelov = 0;
