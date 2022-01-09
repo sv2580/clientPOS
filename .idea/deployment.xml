@@ -14,6 +14,9 @@
           <mappings>
             <mapping deploy="/tmp/tmp.wm2hFfXicz" local="$PROJECT_DIR$" />
           </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/cmake-build-debug" />
+          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>
