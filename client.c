@@ -1047,7 +1047,5 @@ int mainKlient(int argc, char *argv[]) {
     hlavneMenu();
     while (cinnost != -2) {
 
-
-
     }
 }
