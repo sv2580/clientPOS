@@ -82,7 +82,7 @@ void *posliSpravu() {
         char sprava[256];
 
 
-        printf("Please enter contact: ");
+        printf("Zadajte kontakt: ");
         bzero(contact, 100);
         fgets(contact, 99, stdin);
         trim(contact, 100);
@@ -96,7 +96,7 @@ void *posliSpravu() {
             break;
         }
 
-        printf("Please enter a message to send to %s: ", contact);
+        printf("Zadajte správu pre %s: ", contact);
         fgets(sprava, 255, stdin);
         trim(sprava, 256);
         sprintf(buffer, "%s: %s", login, sprava);
@@ -125,7 +125,7 @@ void *posliSifSpravu() {
     char contact[100];
     char buffer[256];
 
-    printf("Please enter contact: ");
+    printf("Zadajte kontakt: ");
     bzero(contact, 100);
     printf("%s", "> ");
     fflush(stdout);
@@ -148,7 +148,7 @@ void *posliSifSpravu() {
         hlavneMenu();
     }
 
-    printf("Please enter a message to send to %s: ", contact);
+    printf("Zadajte správu pre %s: ", contact);
     printf("%s", "> ");
     fflush(stdout);
     scanf("%s", buffer);
@@ -160,7 +160,7 @@ void *posliSifSpravu() {
     }
 
     int posun;
-    printf("Please enter a number: \n ");
+    printf("Zadajte číslo: \n ");
     scanf("%d", &posun);
     getchar();
     n = write(sockfd, &posun, sizeof(posun));
