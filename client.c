@@ -100,7 +100,7 @@ void *posliSpravu() {
         fgets(sprava, 255, stdin);
         trim(sprava, 256);
         sprintf(buffer, "%s: %s", login, sprava);
-        printf("%s \n",buffer);
+        printf("%s \n", buffer);
         n = write(sockfd, buffer, strlen(buffer));
 
         if (n < 0) {
@@ -183,7 +183,7 @@ void *skupKonvSpravy() {
         char sprava[256];
         trim(login, 100);
         printf("%s: ", login);
-        fgets(sprava,255,stdin);
+        fgets(sprava, 255, stdin);
         sprintf(buffer, "%s: %s", login, sprava);
 
 
@@ -612,7 +612,7 @@ void pozrietZiadosti() {
         perror("Error reading from socket");
         return;
     }
-    printf("%d ",nasielSa);
+    printf("%d ", nasielSa);
     while (nasielSa == 1) {
         char contact[100];
         bzero(contact, 100);
@@ -672,7 +672,7 @@ void odobratPriatela() {
     scanf("%d", &priatel);
     getchar();
     if (priatel == -1) {
-        strcpy(contact,"exit");
+        strcpy(contact, "exit");
         n = write(sockfd, contact, strlen(contact));
         if (n < 0) {
             perror("Error writing to socket");
@@ -871,10 +871,10 @@ void hlavneMenu() {
         }
 
     } else {
-
+        printf("*****ÚČET*****\n");
         printf("[3.] Odhlásenie \n");
         printf("[4.] Zmazať účet \n");
-
+        printf("\n*****POSIELANIE SPRÁV*****\n");
         printf("[5.] Posielanie správ \n");
         printf("[6.] Konverzácie s priateľmi \n");
         printf("[7.] Vytvor skupinu \n");
@@ -883,7 +883,7 @@ void hlavneMenu() {
         printf("[10.] Prijatie dát \n");
         printf("[11.] Odoslanie šifrovanej správy \n");
         printf("[12.] Dešifrovanie správy \n");
-
+        printf("\n*****PRIATELIA*****\n");
         printf("[13.] Pridať si úžívateľa do priateľov\n");
         printf("[14.] Pozrieť si žiadosti o priateľstvo\n");
         printf("[15.] Odobranie priatela \n");
