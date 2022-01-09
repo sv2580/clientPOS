@@ -60,8 +60,7 @@ void odobratPriatelaZpola(int index) {
 
 void *dostatnSpravu() {
     int skonci = 0;
-    //printf("Dostávam správy \n");
-    while (cinnost == 3 || cinnost == 12) {
+    while (cinnost == 5 || cinnost == 8) {
         int n;
         char buffer[256];
         n = recv(sockfd, buffer, 255, 0);
@@ -100,8 +99,8 @@ void *posliSpravu() {
         printf("Please enter a message to send to %s: ", contact);
         fgets(sprava, 255, stdin);
         trim(sprava, 256);
-        printf("%s: ", login);
         sprintf(buffer, "%s: %s", login, sprava);
+        printf("%s \n",buffer);
         n = write(sockfd, buffer, strlen(buffer));
 
         if (n < 0) {
@@ -184,7 +183,7 @@ void *skupKonvSpravy() {
         char sprava[256];
         trim(login, 100);
         printf("%s: ", login);
-        scanf("%s", sprava);
+        fgets(sprava,255,stdin);
         sprintf(buffer, "%s: %s", login, sprava);
 
 
@@ -613,6 +612,7 @@ void pozrietZiadosti() {
         perror("Error reading from socket");
         return;
     }
+    printf("%d ",nasielSa);
     while (nasielSa == 1) {
         char contact[100];
         bzero(contact, 100);
@@ -703,7 +703,7 @@ void desifruj() {
 
     char contact[100];
     char line[256];
-    int posun, p;
+    int posun, p = -1;
     int n = read(sockfd, &p, sizeof(p));
     if (n < 0) {
         perror("Error reading from socket");
@@ -806,7 +806,6 @@ void konverzaciaSpriatelom() {
             if (strcmp(login, line) == 0 || strcmp(contact, line) == 0) {
                 printf("\n");
             }
-            printf("%s ", line);
             printf("%s ", line);
         }
         fclose(subor);
